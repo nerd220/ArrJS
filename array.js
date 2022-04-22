@@ -161,7 +161,7 @@ function Arr(){
 		if(f) this.b.sort(f); else this.b.sort();
 		for(let i=0;i<this.b.length;i++){
 			for(let j=0;j<this.b.length;j++){
-				if(this.b[i]==oldB[j] && !(j in defined)){
+				if(this.b[i]===oldB[j] && !(j in defined)){
 					defined[j]=1;
 					this.a.push(oldA[j]);
 					break;
