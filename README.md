@@ -24,8 +24,8 @@ Wrapper over array &amp; map classes. Allow use push, shift, unshift, sort &amp;
  for(let v of a)   
  перебираем массив, методом for of  
   
- for(let i=0; i<a.length; i++) a[i] (а точнее a.array[i], т.к. array упорядочен по индексам от 0 до length—1)  
- перебираем массив методом for (при включённом proxy, возможно, замедляет работу)  
+ for(let i=0; i<a.length; i++) a.array[i]
+ перебираем массив методом for (при этом ключ будет доступен через a.a[i])
   
  a['а']='Яблоко';  
  console.log(a['а'])  
