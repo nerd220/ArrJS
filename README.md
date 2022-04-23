@@ -28,7 +28,7 @@ Wrapper over array &amp; map classes. Allow use push, shift, unshift, sort &amp;
  перебираем массив методом for (при этом ключ будет доступен через a.a[i])  
    
  a.foreach((key,value)=>{  
-	key, value  
+        console.log(key, value);
  });  
  перебираем массив методом foreach  
   
