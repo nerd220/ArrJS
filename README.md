@@ -49,10 +49,7 @@ Wrapper over array &amp; map classes. Allow use push, shift, unshift, sort &amp;
   
  a.set('123','Банан') и a.set(123,'Банан') идентичны  
  они приведут к одному и тому же элементу, т.к. работает приведение типов ключей к числам и строкам (ключи—объекты запрещены)  
-  
- key in a  
- вернёт true или false в зависимости от наличия ключа в a  
-  
+    
  ...a  
  spread оператор вернёт набор значений a  
   
@@ -63,6 +60,9 @@ Wrapper over array &amp; map classes. Allow use push, shift, unshift, sort &amp;
    
  delete a[key]  
  для удаления испольлзуйте метод a.delete или a.splice  
+ 
+ key in a  
+ используйте для этого метод .has(key)  
   
 ## расширенный функционал  
   
