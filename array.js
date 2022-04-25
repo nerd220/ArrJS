@@ -95,9 +95,10 @@
 //
 // ключи pushIndex%NUM% зарезервированы под внутренний индекс массива для корректного push-а
 
-var useProxy=1; // включить, чтобы иметь возможность доступа к массиву через a[key]
-var deepTrace=1;	// включить, чтобы исключить из доступа поля самого класса, например a['a'] и т.д. (работает только если включён useProxy)
+var useProxy=0; // включить, чтобы иметь возможность доступа к массиву через a[key]
+var deepTrace=0;	// включить, чтобы исключить из доступа поля самого класса, например a['a'] и т.д. (работает только если включён useProxy)
 				// значительно замедляет работу
+var useMap=0; // использовать отдельный Map с ключами-значениями
 
 // prepend
 var allowMethodsT=['array','map','foreach','copy','set','add','clear','delete','push','shift','pop','unshift','splice','reverse','sort','get','has','keys','values','entries','length','size','iter'];
@@ -115,9 +116,9 @@ function Arr(){
 		this.a=Array();
 		this.b=Array();
 		this.c=new Map();
-		this.d=new Map();
+		if(useMap) this.d=new Map();
 		this.array=this.b;
-		this.map=this.d;
+		if(useMap) this.map=this.d;
 	}
 	this.def();
 	this.generator=function*(){
@@ -138,7 +139,7 @@ function Arr(){
 	this.set=function(key,value){
 		this.index++;
 		key=this.prependKey(key);
-		if(!this.d.has(key)){
+		if(!this.c.has(key)){
 			this.a.push(key);
 			this.b.push(value);
 			let n=this.a.length-1;
@@ -147,12 +148,12 @@ function Arr(){
 			let i=this.c.get(key)*1;
 			this.b[i]=value;
 		}
-		this.d.set(key,value);
+		if(useMap) this.d.set(key,value);
 	}
 	this.add=this.set; //alias
 	this.clear=function(){
 		this.c.clear();
-		this.d.clear();
+		if(useMap) this.d.clear();
 		this.def();
 	}
 	this.delete=function(key){
@@ -160,7 +161,7 @@ function Arr(){
 		this.a.splice(i,1);
 		this.b.splice(i,1);
 		this.c.delete(this.prependKey(key));
-		this.d.delete(this.prependKey(key));
+		if(useMap) this.d.delete(this.prependKey(key));
 	}
 	this.push=function(value){
 		let key='pushIndex'+this.index;
@@ -169,13 +170,13 @@ function Arr(){
 	this.shift=function(){
 		let val=this.b.shift();
 		let key=this.a.shift();
-		this.d.delete(this.prependKey(key));
+		if(useMap) this.d.delete(this.prependKey(key));
 		this.c.delete(this.prependKey(key));
 	}
 	this.pop=function(){
 		let val=this.b.pop();
 		let key=this.a.pop();
-		this.d.delete(this.prependKey(key));
+		if(useMap) this.d.delete(this.prependKey(key));
 		this.c.delete(this.prependKey(key));
 	}
 	this.unshift=function(value){
@@ -184,14 +185,14 @@ function Arr(){
 		this.c.forEach((v,k)=>this.c.set(k,Number(v)+1));
 		this.a.unshift(key);
 		this.b.unshift(value);
-		this.d.set(key,value);
+		if(useMap) this.d.set(key,value);
 		this.c.set(key,0);
 	}
 	this.splice=function(pos,deleteCount){
 		for(let i=pos;i<pos+deleteCount;i++){
 			if(!(i in a)) continue;
 			let key=this.prependKey(this.a[i]);
-			this.d.delete(key);
+			if(useMap) this.d.delete(key);
 			this.c.delete(key);
 		}
 		this.a.splice(pos,deleteCount);
@@ -227,19 +228,32 @@ function Arr(){
 		this.rebuildC();
 	}
 	this.has=function(key){
-		return this.d.has(this.prependKey(key));
+		return this.c.has(this.prependKey(key));
 	}
 	this.get=function(key){
-		return this.d.get(this.prependKey(key));
+		if(useMap) return this.d.get(this.prependKey(key));
+		else {
+			let k=this.c.get(this.prependKey(key));
+			if(k!==false && k in this.b) return this.b[k];
+		}
 	}
 	this.keys=function(){
-		return this.d.keys();
+		if(useMap) return this.d.keys();
+		else return this.a;
 	}
 	this.values=function(){
-		return this.d.values();
+		if(useMap) return this.d.values();
+		else return this.b;
 	}
 	this.entries=function(){
-		return this.d.entries();
+		if(useMap) return this.d.entries();
+		else {
+			let e=[];
+			for(let i=0;i<this.a.length;i++){
+				e.push([this.a[i],this.b[i]]);
+			}
+			return e;
+		}
 	}
 	this.asProxy=function(){
 		let t=this;
@@ -273,10 +287,16 @@ function Arr(){
 	let ok=Object.keys(this);
 	for(let i in ok) Object.defineProperty(this,ok[i],{enumerable:false});
 	Object.defineProperty(this,'length',{
-		get: function(){return this.d.size}
+		get: function(){
+			if(useMap) return this.d.size;
+			else return this.a.length;
+		}
 	});
 	Object.defineProperty(this,'size',{
-		get: function(){return this.d.size}
+		get: function(){
+			if(useMap) return this.d.size
+			else return this.a.length;
+		}
 	});
 	Object.defineProperty(this,'copy',{
 		get: function(){return this.copy()}
@@ -304,14 +324,12 @@ function Arr(){
 //a.c.forEach((k,v)=>{alert(k+' '+v);});
 
 //var a=new Arr();
-//a.set('a','Яблоко');
+//a.set('а','Яблоко');
 //a.set('б','Банан');
 //a.set('123','Близнецы');
 //a.set(123,'Близнецы');
 //a.set('в','Сочи');
 //a['1234']='Красная поляна';
-//alert('а' in a);	//- true
-//alert('f' in a);	//- false
 //a['a'];
 //alert(a.length);
 //a.sort();
