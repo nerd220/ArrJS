@@ -55,6 +55,9 @@ Wrapper over array &amp; map classes. Allow use push, shift, unshift, sort &amp;
  
  a.sort(f)  
  да, теперь вы можете отсортировать Map как вам хочется  
+ 
+ a.ksort(f)  
+ также доступна сортировка по ключам  
   
 ## Что не работает  
   
