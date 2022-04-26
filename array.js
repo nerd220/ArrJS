@@ -101,7 +101,7 @@ var deepTrace=0;	// включить, чтобы исключить из дос�
 var useMap=0; // использовать отдельный Map с ключами-значениями
 
 // prepend
-var allowMethodsT=['array','map','foreach','copy','set','add','clear','delete','push','shift','pop','unshift','splice','reverse','sort','get','has','keys','values','entries','length','size','iter'];
+var allowMethodsT=['array','map','foreach','copy','set','add','clear','delete','push','shift','pop','unshift','splice','reverse','sort','ksort','get','has','keys','values','entries','length','size','iter'];
 var allowMethodsArray=[];
 for(let key of allowMethodsT) allowMethodsArray[key]=1;
 delete allowMethodsT;
@@ -218,6 +218,26 @@ function Arr(){
 				if(this.b[i]===oldB[j] && !(j in defined)){
 					defined[j]=1;
 					this.a.push(oldA[j]);
+					break;
+				}
+			}
+		}
+		delete oldB;
+		delete oldA;
+		delete defined;
+		this.rebuildC();
+	}
+	this.ksort=function(f){
+		let oldB=this.b.slice();
+		let oldA=this.a.slice();
+		this.b=Array();
+		let defined=Array();
+		if(f) this.a.sort(f); else this.a.sort();
+		for(let i=0;i<this.a.length;i++){
+			for(let j=0;j<this.a.length;j++){
+				if(this.a[i]===oldA[j] && !(j in defined)){
+					defined[j]=1;
+					this.b.push(oldB[j]);
 					break;
 				}
 			}
