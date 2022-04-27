@@ -1,11 +1,11 @@
 // vars
-var useProxy=1; // enable, to access a[key]
-var deepTrace=1; // enable, to ignore inner class fields (liks 'a', 'b' and etc)
+var useProxy=0; // enable, to access a[key]
+var deepTrace=0;	// enable, to ignore inner class fields (liks 'a', 'b' and etc)
 				// very slow, because it's Error.log parsing
-var useMap=1; // use alter Map storage on a.map field
+var useMap=0; // use alter Map storage on a.map field
 
 // prepend
-var allowMethodsT=['array','map','foreach','copy','set','add','clear','delete','push','shift','pop','unshift','splice','reverse','sort','ksort','get','has','keys','values','entries','length','size','iter','iterE'];
+var allowMethodsT=['array','map','foreach','copy','set','add','clear','delete','push','shift','pop','unshift','splice','reverse','sort','ksort','get','has','keys','values','entries','length','size','iter','iterE','filter'];
 var allowMethodsArray=[];
 for(let key of allowMethodsT) allowMethodsArray[key]=1;
 delete allowMethodsT;
@@ -153,6 +153,11 @@ function Arr(){
 		delete oldA;
 		delete defined;
 		this.rebuildC();
+	}
+	this.filter=function(f){
+		let r=new Arr();
+		for(let i=0;i<this.a.length;i++) if(f(this.a[i],this.b[i])) r.set(this.a[i],this.b[i]);
+		return r;
 	}
 	this.has=function(key){
 		return this.c.has(this.prependKey(key));
